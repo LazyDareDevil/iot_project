@@ -1,6 +1,6 @@
 from flask import Flask, abort, request, jsonify
-from Devices.Info.system import SystemInfo
-from Devices.System.status import SystemShapshot
+from Devices.system import SystemInfo
+from Devices.status import SystemShapshot
 
 app = Flask(__name__)
 system_data = SystemInfo()
@@ -33,4 +33,4 @@ def update_info():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="192.168.4.2", port=1234)
+    app.run(debug=True)
