@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 import os
-from Devices.Info.device import Device
+from Devices.Info import device
 
 
 class SystemShapshot:
@@ -16,5 +16,5 @@ class SystemShapshot:
         devices_elem = xmlTreeRoot.find("DEVICES")
         self.rpi = rpi_elem.get("uid")
         for element in devices_elem.iter('device'):
-            self.devices.append(Device(element.get("uid")))
+            self.devices.append(device.Device(element.get("uid")))
 
