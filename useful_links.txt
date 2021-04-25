@@ -2,3 +2,8 @@ https://www.raspberrypi.org/documentation/configuration/wireless/access-point-ro
 
 https://makecademy.com/connect-esp8266-raspberry-pi
 
+testing REST request on Win10:
+	post
+	curl http://host:port/something -d "{\"foo\": \"bar\"}" -H 'Content-Type: application/json'
+
+Remember: to connect to flask REST API from device, connected to RPI's WIFI, need to use host what uses this device in sub network
