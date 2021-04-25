@@ -3,7 +3,7 @@
 
 .idea
 venv
-Devices/Sensitive
+Sensitive
 Test
 
 __pycache__
