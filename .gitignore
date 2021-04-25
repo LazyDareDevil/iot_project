@@ -3,7 +3,10 @@
 
 .idea
 venv
-DevicesAPI/Sensetive
+Devices/Sensitive
+Test
+
+__pycache__
 
 # User-specific stuff
 .idea/**/workspace.xml
