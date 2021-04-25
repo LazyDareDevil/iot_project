@@ -1,5 +1,1 @@
-import status
-
-
-def __name__():
-    return "System"
+from status import *

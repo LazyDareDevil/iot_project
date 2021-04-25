@@ -1,3 +1,3 @@
-import Info
-import System
+from Info import *
+from System import *
 
