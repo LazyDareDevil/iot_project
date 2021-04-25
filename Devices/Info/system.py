@@ -30,4 +30,3 @@ class SystemInfo:
                 self.xmlTree.write(self.xml_path)
                 return 1
         return 0
-

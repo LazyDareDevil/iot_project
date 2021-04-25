@@ -1,2 +1,2 @@
-from device import *
-from system import *
+import device
+import system

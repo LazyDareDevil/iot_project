@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class Device:
     type = 0
     status = -1

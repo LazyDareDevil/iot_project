@@ -1,3 +1,2 @@
-from Info import *
-from System import *
-
+import Info
+import System

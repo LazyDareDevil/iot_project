@@ -1,10 +1,10 @@
 from flask import Flask, abort, request, jsonify
-from Devices.Info import system
-from Devices.System import status
+from Devices.Info.system import SystemInfo
+from Devices.System.status import SystemShapshot
 
 app = Flask(__name__)
-system_data = system.SystemInfo()
-system_snapshot = status.SystemShapshot()
+system_data = SystemInfo()
+system_snapshot = SystemShapshot()
 
 
 @app.route("/api/v1.0/system/device", methods=['POST'])
