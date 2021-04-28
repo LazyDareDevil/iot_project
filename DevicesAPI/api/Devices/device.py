@@ -11,7 +11,7 @@ class Device:
     def __init__(self, uid):
         self.uid = uid
         self.status = 0
-        self.datetime = datetime.now()
+        self.timestamp = datetime.timestamp(datetime.now())
         tmp = uid[:3]
         if tmp == "001":
             self.type = 1
@@ -36,7 +36,11 @@ class Device:
             self.light = light
             self.lighter = lighter
             self.motor = motor
-            self.datetime = datetime.now()
+            self.timestamp = datetime.timestamp(datetime.now())
         if status == 1:
             self.change_to_inactive()
 
+    def to_dict(self):
+        return {"uid": self.uid, "timestamp": str(self.timestamp),
+                "light": str(self.light), "lighter": str(self.lighter),
+                "motor": str(self.motor)}

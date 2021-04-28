@@ -9,6 +9,8 @@ Test
 __pycache__
 
 test.json
+.vscode
+
 
 # User-specific stuff
 .idea/**/workspace.xml
