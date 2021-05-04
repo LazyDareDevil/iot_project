@@ -47,8 +47,7 @@ def add_device():
     if (not request.get_json(force=True)) or (not ('uid' in request.json)):
         abort(400)
     res = system_data.add_device(request.json['uid'])
-    device = {"uid": request.json['uid'], "status": res, "timestamp": datetime.timestamp(datetime.now()),
-              "rpi": system_snapshot.rpi}
+    device = {"uid": request.json['uid'], "status": res, "rpi": system_snapshot.rpi}
     system_snapshot.update_info()
     return jsonify(device), 201
 
@@ -63,13 +62,13 @@ def update_info():
         for element in system_snapshot.devices:
             if element.uid == uid:
                 elem = element
-                element.change(1, request.json["light"], request.json["lighter"], request.json["motor"])
+                element.change(1, request.json["light"], request.json["lighter"])
     except Exception:
         pass
     return jsonify(elem.to_dict().add("rpi", system_snapshot.rpi)), 201
 
 
-@app.route("/api/v1.0/update/device", methods=['POST'])
+@app.route("/api/v1.0/update/device", methods=['GET'])
 def update_device():
     if (not request.get_json(force=True)) or (not ('uid' in request.json)):
         abort(400)
