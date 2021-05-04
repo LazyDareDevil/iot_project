@@ -47,8 +47,8 @@ def add_device():
     if (not request.get_json(force=True)) or (not ('uid' in request.json)):
         abort(400)
     res = system_data.add_device(request.json['uid'])
-    device = {"uid": request.json['uid'], "status": res, "rpi": system_snapshot.rpi}
     system_snapshot.update_info()
+    device = {"uid": request.json['uid'], "status": res, "rpi": system_snapshot.rpi}
     return jsonify(device), 201
 
 
@@ -65,6 +65,7 @@ def update_info():
                 element.change(1, request.json["light"], request.json["lighter"])
     except Exception:
         pass
+    print(jsonify(elem.to_dict()))
     return jsonify(elem.to_dict().add("rpi", system_snapshot.rpi)), 201
 
 
