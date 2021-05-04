@@ -37,5 +37,5 @@ class Device:
             self.change_to_inactive()
 
     def to_dict(self):
-        return {"uid": self.uid, "timestamp": str(self.timestamp),
-                "light": str(self.light), "lighter": str(self.lighter)}
+        return {"uid": self.uid, "timestamp": self.timestamp,
+                "light": self.light, "lighter": self.lighter}

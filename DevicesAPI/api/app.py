@@ -1,11 +1,9 @@
 from flask import Flask, abort, request, jsonify
 from Devices.system import SystemInfo
 from Devices.status import SystemShapshot
-from datetime import datetime
 
 app = Flask(__name__)
-system_data = SystemInfo()
-system_snapshot = SystemShapshot()
+system_snapshot = SystemShapshot(SystemInfo())
 
 
 @app.route("/api/v1.0/test", methods=['GET'])
@@ -46,8 +44,8 @@ def test_device():
 def add_device():
     if (not request.get_json(force=True)) or (not ('uid' in request.json)):
         abort(400)
-    res = system_data.add_device(request.json['uid'])
-    system_snapshot.update_info()
+    res = system_snapshot.system_info.add_device(request.json['uid'])
+    system_snapshot.update_system()
     device = {"uid": request.json['uid'], "status": res, "rpi": system_snapshot.rpi}
     return jsonify(device), 201
 
@@ -66,7 +64,7 @@ def update_info():
     except Exception:
         pass
     print(jsonify(elem.to_dict()))
-    return jsonify(elem.to_dict().add("rpi", system_snapshot.rpi)), 201
+    return jsonify(elem.to_dict()), 201
 
 
 @app.route("/api/v1.0/update/device", methods=['GET'])

@@ -3,21 +3,26 @@ import os
 
 
 class SystemInfo:
+    xml_path = None
+    xmlTree = None
+    rpi = None
+    devices = None
 
     def __init__(self):
         cwd = os.getcwd()
         self.xml_path = os.path.join(os.path.join(os.path.join(cwd, "Devices"), "Sensitive"), "devices.xml")
-        self.xmlTree = ET.parse(self.xml_path)
-        self.xmlTreeRoot = self.xmlTree.getroot()
-        rpi = self.xmlTreeRoot.find("RPI")
-        self.devices = self.xmlTreeRoot.find("DEVICES")
+        self.update_system()
         data_path = os.path.join(os.path.join(os.path.join(cwd, "Devices"), "Sensitive"), "rpi.txt")
         f = open(data_path, "r")
         tmp = f.readline()[:-1]
+        rpi_uid = ""
         if tmp[:3] == "uid:":
             tmp = f.readline()[:-1]
             if tmp[0] == '0' and tmp[2] == '0':
-                rpi.set("uid", tmp)
+                rpi_uid = tmp
+        xmlTreeRoot = self.xmlTree.getroot()
+        self.rpi = xmlTreeRoot.find("RPI")    
+        self.rpi.set("uid", rpi_uid)
         self.xmlTree.write(self.xml_path)
 
     def add_device(self, uid):
@@ -28,7 +33,13 @@ class SystemInfo:
                 b.set("uid", uid)
                 b.set("type", uid[2])
                 self.xmlTree.write(self.xml_path)
+                self.update_system()
                 return 1
             else:
-                return 0
+                return 2
         return 0
+
+    def update_system(self):
+        self.xmlTree = ET.parse(self.xml_path)
+        xmlTreeRoot = self.xmlTree.getroot()
+        self.devices = xmlTreeRoot.find("DEVICES") 
