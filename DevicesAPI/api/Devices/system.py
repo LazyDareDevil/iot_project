@@ -14,7 +14,7 @@ class SystemInfo:
         data_path = os.path.join(os.path.join(os.path.join(cwd, "Devices"), "Sensitive"), "rpi.txt")
         f = open(data_path, "r")
         tmp = f.readline()[:-1]
-        if tmp == "uid:":
+        if tmp[:3] == "uid:":
             tmp = f.readline()[:-1]
             if tmp[0] == '0' and tmp[2] == '0':
                 rpi.set("uid", tmp)
@@ -29,4 +29,6 @@ class SystemInfo:
                 b.set("type", uid[2])
                 self.xmlTree.write(self.xml_path)
                 return 1
+            else:
+                return 0
         return 0
