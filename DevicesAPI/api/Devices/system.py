@@ -16,7 +16,7 @@ class SystemInfo:
         tmp = f.readline()[:-1]
         if tmp == "uid:":
             tmp = f.readline()[:-1]
-            if tmp[:3] == "010":
+            if tmp[0] == '0' and tmp[2] == '0':
                 rpi.set("uid", tmp)
         self.xmlTree.write(self.xml_path)
 
