@@ -8,6 +8,7 @@ class SystemSnapshot:
     rpi = None
     devices = []
     system_info = None
+    auto_decision = True
 
     def __init__(self, sys_info: SystemInfo):
         self.system_info = sys_info
@@ -38,13 +39,13 @@ class SystemSnapshot:
         for element in self.devices:
             if element.uid == uid:
                 elem = element
-                element.change(1, data["light"], data["lighter"])
+                element.change(1, data["light"], data["lighter"], data["motor"])
         return elem
 
     def to_dict(self):
         res = {"rpi": self.rpi, "devices": []}
         for device in self.devices:
-            res["devices"].append(device.to_dict())
+            res["devices"].append(device.to_dict_full())
         return res
 
     def save_to_file(self):

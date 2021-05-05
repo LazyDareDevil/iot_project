@@ -1,9 +1,12 @@
 from flask import Flask, abort, request, jsonify
 from Devices.system import SystemInfo
 from Devices.status import SystemSnapshot
+from Devices.decision import DecisionBlock
 
 app = Flask(__name__)
-system_snapshot = SystemSnapshot(SystemInfo())
+system_info = SystemInfo()
+system_snapshot = SystemSnapshot(system_info)
+decision = DecisionBlock(system_snapshot)
 
 
 @app.route("/api/v1.0/test", methods=['GET'])
@@ -55,27 +58,32 @@ def update_info():
     if (not request.get_json(force=True)) or (not ('uid' in request.json)):
         abort(400)
     element = system_snapshot.update_info(request.json)
+    if system_snapshot.auto_decision:
+        decision.analyse()
+        decision.decision()
     if element is not None:
         resp = {"uid": element.uid, "status": 1, "rpi": system_snapshot.rpi}
         system_snapshot.save_to_file()
         return jsonify(resp), 201
     else:
-        res, code = add_device()
-        if code == 201:
-            element = system_snapshot.update_info(request.json)
-            if element is not None:
-                resp = {"uid": element.uid, "status": 1, "rpi": system_snapshot.rpi}
-                return jsonify(resp), 201
-        system_snapshot.save_to_file()
         abort(400)
 
 
-@app.route("/api/v1.0/update/device", methods=['GET'])
+@app.route("/api/v1.0/update/device", methods=['POST'])
 def update_device():
     if (not request.get_json(force=True)) or (not ('uid' in request.json)):
         abort(400)
     uid = request.json["uid"]
-    return jsonify({}), 201
+    res = None
+    for device in decision.devices_to_change:
+        if device.uid == uid:
+            res = device.to_dict()
+    if res is not None:
+        res["change"] = 1
+        return jsonify(res), 201
+    else:
+        res = {"uid": uid, "change": 0}
+        return jsonify(res), 201
 
 
 @app.route("/api/v1.0/system/snapshot", methods=['GET'])
