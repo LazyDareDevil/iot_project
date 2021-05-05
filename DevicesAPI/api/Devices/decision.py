@@ -17,13 +17,13 @@ class DecisionBlock:
         outside_count = 0
         for device in self.system_snapshot.devices:
             if device.type == 2:
-                self.outside_light += device.lighter
+                self.outside_light += device.light
                 outside_count += 1
                 self.windows.append(device.copy())
             if device.type == 1:
-                if device.lighter <= 25:
+                if device.light <= 25:
                     self.low_normal.append(device.copy())
-                if device.lighter >= 40:
+                if device.light >= 40:
                     self.high_normal.append(device.copy())
         if outside_count > 0:
             self.outside_light /= outside_count
