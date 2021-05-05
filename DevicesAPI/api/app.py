@@ -77,7 +77,7 @@ def update_device():
     res = None
     for device in decision.devices_to_change:
         if device.uid == uid:
-            res = device.to_dict()
+            res = device.to_dict_change()
     if res is not None:
         res["change"] = 1
         return jsonify(res), 201

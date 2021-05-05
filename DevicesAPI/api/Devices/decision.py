@@ -21,7 +21,7 @@ class DecisionBlock:
                 outside_count += 1
                 self.windows.append(device.copy())
             if device.type == 1:
-                if device.light <= 25:
+                if device.light <= 20:
                     self.low_normal.append(device.copy())
                 if device.light >= 40:
                     self.high_normal.append(device.copy())
