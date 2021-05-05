@@ -25,7 +25,8 @@ class DecisionBlock:
                     self.low_normal.append(device.copy())
                 if device.lighter >= 40:
                     self.high_normal.append(device.copy())
-        self.outside_light /= outside_count
+        if outside_count > 0:
+            self.outside_light /= outside_count
 
     def decision(self):
         if self.outside_light > 40:
