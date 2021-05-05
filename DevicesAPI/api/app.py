@@ -1,9 +1,9 @@
 from flask import Flask, abort, request, jsonify
 from Devices.system import SystemInfo
-from Devices.status import SystemShapshot
+from Devices.status import SystemSnapshot
 
 app = Flask(__name__)
-system_snapshot = SystemShapshot(SystemInfo())
+system_snapshot = SystemSnapshot(SystemInfo())
 
 
 @app.route("/api/v1.0/test", methods=['GET'])
@@ -54,17 +54,20 @@ def add_device():
 def update_info():
     if (not request.get_json(force=True)) or (not ('uid' in request.json)):
         abort(400)
-    uid = request.json["uid"]
-    elem = None
-    try:
-        for element in system_snapshot.devices:
-            if element.uid == uid:
-                elem = element
-                element.change(1, request.json["light"], request.json["lighter"])
-    except Exception:
-        pass
-    print(jsonify(elem.to_dict()))
-    return jsonify(elem.to_dict()), 201
+    element = system_snapshot.update_info(request.json)
+    if element is not None:
+        resp = {"uid": element.uid, "status": 1, "rpi": system_snapshot.rpi}
+        system_snapshot.save_to_file()
+        return jsonify(resp), 201
+    else:
+        res, code = add_device()
+        if code == 201:
+            element = system_snapshot.update_info(request.json)
+            if element is not None:
+                resp = {"uid": element.uid, "status": 1, "rpi": system_snapshot.rpi}
+                return jsonify(resp), 201
+        system_snapshot.save_to_file()
+        abort(400)
 
 
 @app.route("/api/v1.0/update/device", methods=['GET'])
@@ -72,9 +75,16 @@ def update_device():
     if (not request.get_json(force=True)) or (not ('uid' in request.json)):
         abort(400)
     uid = request.json["uid"]
-
     return jsonify({}), 201
+
+
+@app.route("/api/v1.0/system/snapshot", methods=['GET'])
+def get_snapshot():
+    if (not request.get_json(force=True)) or (not ('uid' in request.json)):
+        abort(400)
+    return jsonify(system_snapshot.to_dict()), 201
 
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=3096)
+    # app.run(debug=True)

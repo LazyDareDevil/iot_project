@@ -5,7 +5,7 @@ class Device:
     type = 0
     status = -1
     light = -1
-    lighter = -1
+    lighter = [-1, -1, -1]
 
     def __init__(self, uid):
         self.uid = uid
@@ -25,15 +25,15 @@ class Device:
 
     def change_to_inactive(self):
         self.light = -1
-        self.lighter = -1
+        self.lighter = [-1, -1, -1]
 
     def change(self, status, light, lighter):
         self.status = status
-        if status == 0:
+        if status == 1:
             self.light = light
             self.lighter = lighter
             self.timestamp = datetime.timestamp(datetime.now())
-        if status == 1:
+        if status == 0:
             self.change_to_inactive()
 
     def to_dict(self):

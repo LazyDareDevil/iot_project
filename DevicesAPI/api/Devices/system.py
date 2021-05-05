@@ -16,10 +16,11 @@ class SystemInfo:
         f = open(data_path, "r")
         tmp = f.readline()[:-1]
         rpi_uid = ""
-        if tmp[:3] == "uid:":
+        if tmp[:4] == "uid:":
             tmp = f.readline()[:-1]
             if tmp[0] == '0' and tmp[2] == '0':
                 rpi_uid = tmp
+        print(rpi_uid)
         xmlTreeRoot = self.xmlTree.getroot()
         self.rpi = xmlTreeRoot.find("RPI")    
         self.rpi.set("uid", rpi_uid)
@@ -34,10 +35,10 @@ class SystemInfo:
                 b.set("type", uid[2])
                 self.xmlTree.write(self.xml_path)
                 self.update_system()
-                return 1
+                return 0
             else:
                 return 2
-        return 0
+        return -1
 
     def update_system(self):
         self.xmlTree = ET.parse(self.xml_path)

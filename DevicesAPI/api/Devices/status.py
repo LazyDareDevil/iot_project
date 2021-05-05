@@ -4,7 +4,7 @@ from .device import Device
 from .system import SystemInfo
 
 
-class SystemShapshot:
+class SystemSnapshot:
     rpi = None
     devices = []
     system_info = None
@@ -20,7 +20,7 @@ class SystemShapshot:
         else:
             print("Add info about rpi indo devices.xml")
         for dev in self.system_info.devices:
-            if "uid" in dev:
+            if "uid" in dev.attrib:
                 uid = dev.attrib["uid"]
                 is_exist = False
                 for device in self.devices:
@@ -32,7 +32,24 @@ class SystemShapshot:
             else:
                 print("Incorrect data in devices.xml")
 
+    def update_info(self, data: dict):
+        uid = data["uid"]
+        elem = None
+        for element in self.devices:
+            if element.uid == uid:
+                elem = element
+                element.change(1, data["light"], data["lighter"])
+        return elem
+
     def to_dict(self):
         res = {"rpi": self.rpi, "devices": []}
         for device in self.devices:
             res["devices"].append(device.to_dict())
+        return res
+
+    def save_to_file(self):
+        cwd = os.getcwd()
+        file_path = os.path.join(os.path.join(os.path.join(cwd, "Devices"), "Sensitive"), "db.txt")
+        file_object = open(file_path, 'a')
+        file_object.write("\n{}\n".format(self.to_dict()))
+        file_object.close()
