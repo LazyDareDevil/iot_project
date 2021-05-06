@@ -22,15 +22,15 @@ class DecisionBlock:
                 outside_count += 1
                 self.windows.append(device.copy())
             if device.type == 1:
-                if device.light <= 50:
+                if device.light <= 80:
                     self.low_normal.append(device.copy())
-                if device.light >= 70:
+                if device.light >= 110:
                     self.high_normal.append(device.copy())
         if outside_count > 0:
             self.outside_light /= outside_count
 
     def decision(self):
-        if self.outside_light > 70:
+        if self.outside_light > 110:
             for device in self.high_normal:
                 if device.lighter[0] > 20 and device.lighter[1] > 20 and device.lighter[2] > 20:
                     device.lighter = [0, 0, 0]
@@ -40,7 +40,7 @@ class DecisionBlock:
                     device.lighter = [300, 300, 300]
                     self.devices_to_change.append(device)
             for device in self.windows:
-                if device.light > 80:
+                if device.light > 120:
                     if device.motor == 2:
                         device.motor = 1
                         self.devices_to_change.append(device)
@@ -50,11 +50,11 @@ class DecisionBlock:
                         self.devices_to_change.append(device)
         else:
             for device in self.high_normal:
-                if device.lighter[0] > 200 and device.lighter[1] > 200 and device.lighter[2] > 200:
+                if device.lighter[0] > 300 and device.lighter[1] > 300 and device.lighter[2] > 300:
                     device.lighter = [100, 100, 100]
                     self.devices_to_change.append(device)
             for device in self.low_normal:
-                if device.lighter[0] < 500 and device.lighter[1] < 500 and device.lighter[2] < 500:
+                if device.lighter[0] < 400 and device.lighter[1] < 400 and device.lighter[2] < 400:
                     device.lighter = [600, 600, 600]
                     self.devices_to_change.append(device)
             for device in self.windows:

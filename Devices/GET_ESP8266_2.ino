@@ -20,7 +20,7 @@ const char* password =  STAPSK;
 char rpi[128];
 
 int pVal = 0;
-int mVal = 0;
+int mVal = 2;
 
 char output[256];
 char _str[256];
@@ -198,7 +198,7 @@ void GetInfoDevice()
   Serial.println(UID);
   post_change["rpi"] = (const char*)rpi;
   Serial.println((const char*)rpi);
-  serializeJson(post_info, output);
+  serializeJson(post_change, output);
   Serial.println(output);
 
   if ((WiFi.status() == WL_CONNECTED)) 
