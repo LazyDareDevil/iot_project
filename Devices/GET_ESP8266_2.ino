@@ -1,4 +1,4 @@
-// this is type 1 of devices
+// this is type 2 of devices
 
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
@@ -8,10 +8,9 @@
 #define STAPSK  ""
 
 #define UID ""
-#define PIN_GREEN 0
-#define PIN_RED 2
-#define PIN_BLUE 4
 #define PIN_PHOTO_SENSOR A0
+#define PIN_MOTOR1 0
+#define PIN_MOTOR2 2
 
 const int freqAver = 10;
 
@@ -20,10 +19,8 @@ const char* password =  STAPSK;
 
 char rpi[128];
 
-int rVal = 0;
-int gVal = 0;
-int bVal = 0;
 int pVal = 0;
+int mVal = 0;
 
 char output[256];
 char _str[256];
@@ -68,7 +65,7 @@ void InitDeviceInNetwork()
     int httpCode = http.POST(output);
     
     StaticJsonDocument<get_init_capacity> get_init;
-    
+
     if (httpCode == 201) 
     {
         payload = http.getString();        
@@ -145,6 +142,7 @@ void InitDeviceInNetwork()
       Serial.println(String(httpCode));
     }
   }
+
   delay(2000);
 }
 
@@ -155,9 +153,9 @@ void SendInfoDevice()
   JsonArray post_info_lighter = post_info.createNestedArray("lighter");
   Serial.println("Init");
   
-  post_info_lighter.add(rVal);
-  post_info_lighter.add(gVal);
-  post_info_lighter.add(bVal);
+  post_info_lighter.add(-1);
+  post_info_lighter.add(-1);
+  post_info_lighter.add(-1);
   
   getLight();
   Serial.println(pVal);
@@ -166,7 +164,7 @@ void SendInfoDevice()
   post_info["rpi"] = (const char*)rpi;
   Serial.println((const char*)rpi);
   post_info["light"] = pVal;
-  post_info["motor"] = -1;
+  post_info["motor"] = mVal;
   serializeJson(post_info, output);
   Serial.println(output);
   
@@ -176,9 +174,10 @@ void SendInfoDevice()
     http.begin("http://host:port/api/v1.0/info/device");
     http.addHeader("Content-Type", "application/json");
     int httpCode = http.POST(output);
+    
     if (httpCode == 201) 
     {
-      payload = http.getString();
+      String payload = http.getString();
       Serial.println(payload);
     }
     else 
@@ -199,52 +198,48 @@ void GetInfoDevice()
   Serial.println(UID);
   post_change["rpi"] = (const char*)rpi;
   Serial.println((const char*)rpi);
-  serializeJson(post_change, output);
+  serializeJson(post_info, output);
   Serial.println(output);
-  
+
   if ((WiFi.status() == WL_CONNECTED)) 
   { 
     HTTPClient http;
-    int httpCode;
+
     http.begin("http://host:port/api/v1.0/update/device");
     http.addHeader("Content-Type", "application/json");
-    httpCode = http.POST(output);
+    int httpCode = http.POST(output);
     
     DynamicJsonDocument get_change(1000);
-    
+
     if (httpCode == 201) 
     {
-      payload = http.getString();
-      Serial.println(payload);
-      payload.toCharArray(_str, 256);
-      Serial.println(_str);
-      DeserializationError err = deserializeJson(get_change, _str);
-      if(err)
-      {
-        Serial.print(F("deserializeJson() failed with code "));
-        Serial.println(err.c_str());
-      }
-      if (get_change.containsKey("change"))
-      {
-        if (get_change["change"] == 1)
+        payload = http.getString();
+        payload.toCharArray(_str, 256);
+        DeserializationError err = deserializeJson(get_change, _str);
+        if(err)
         {
-          if (get_change.containsKey("lighter"))
+          Serial.print(F("deserializeJson() failed with code "));
+          Serial.println(err.c_str());
+        }
+        if (get_change.containsKey("change"))
+        {
+          if (get_change["change"] == 1)
           {
-            rVal = get_change["lighter"][0];
-            gVal = get_change["lighter"][1];
-            bVal = get_change["lighter"][2];
-            changeRGB(rVal, gVal, bVal);
-          }
-          else
-          {
-            Serial.println("Fail in changing. Wrong request");
+            if (get_change.containsKey("motor"))
+            {
+              mVal = get_change["motor"];
+              changeMotor(mVal);
+            }
+            else
+            {
+              Serial.println("Fail in changing. Wrong request");
+            }
           }
         }
-      }
-      else
-      {
-        Serial.println("Fail in changing. Wrong request");
-      }
+        else
+        {
+          Serial.println("Fail in changing. Wrong request");
+        }
     }
     else 
     {
@@ -255,35 +250,51 @@ void GetInfoDevice()
   }
 }
 
-void changeRGB(int R, int G, int B)
+void changeMotor(int M)
 {
-  analogWrite(PIN_RED, R);
-  analogWrite(PIN_GREEN, G);
-  analogWrite(PIN_BLUE, B);
+  if (mVal == 1)
+  {
+    if (M == 2)
+    {
+      digitalWrite(PIN_MOTOR1, HIGH);
+      digitalWrite(PIN_MOTOR2, LOW);
+      mVal = 2;
+      delay(2000);
+      digitalWrite(PIN_MOTOR1, LOW);
+      return;
+    }
+  }
+  if (mVal == 2)
+  {
+    if (M == 1)
+    {
+      digitalWrite(PIN_MOTOR1, LOW);
+      digitalWrite(PIN_MOTOR2, HIGH);
+      mVal = 1;
+      delay(2000);
+      digitalWrite(PIN_MOTOR2, LOW);
+      return;
+    }
+  }
 }
 
 void getLight()
 {
-  unsigned long tmp = 0;
+  pVal = 0;
+      
   for(int i = 0; i<freqAver; i++)
   {
-    tmp += (unsigned long)analogRead(PIN_PHOTO_SENSOR);
+    pVal += analogRead(PIN_PHOTO_SENSOR);
   }
-  Serial.println((String)tmp);
-  pVal = (int)(tmp / freqAver);
+
+  pVal /= freqAver;
 }
 
 void setup() 
 {
   Serial.begin(115200);
-  pinMode(PIN_RED, OUTPUT);  
-  pinMode(PIN_GREEN, OUTPUT);
-  pinMode(PIN_BLUE, OUTPUT);  
-  rVal = 0;
-  gVal = 0;
-  bVal = 0;
-  changeRGB(rVal, gVal, bVal);
-  
+  pinMode(PIN_MOTOR1, OUTPUT);
+  pinMode(PIN_MOTOR2, OUTPUT);  
   WiFiBegin();
   InitDeviceInNetwork();
 }
