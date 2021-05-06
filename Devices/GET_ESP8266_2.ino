@@ -9,8 +9,6 @@
 
 #define UID ""
 #define PIN_PHOTO_SENSOR A0
-#define PIN_MOTOR1 0
-#define PIN_MOTOR2 2
 
 const int freqAver = 10;
 
@@ -215,6 +213,7 @@ void GetInfoDevice()
     {
         payload = http.getString();
         payload.toCharArray(_str, 256);
+        Serial.println(payload);
         DeserializationError err = deserializeJson(get_change, _str);
         if(err)
         {
@@ -228,7 +227,6 @@ void GetInfoDevice()
             if (get_change.containsKey("motor"))
             {
               mVal = get_change["motor"];
-              changeMotor(mVal);
             }
             else
             {
@@ -250,34 +248,6 @@ void GetInfoDevice()
   }
 }
 
-void changeMotor(int M)
-{
-  if (mVal == 1)
-  {
-    if (M == 2)
-    {
-      digitalWrite(PIN_MOTOR1, HIGH);
-      digitalWrite(PIN_MOTOR2, LOW);
-      mVal = 2;
-      delay(2000);
-      digitalWrite(PIN_MOTOR1, LOW);
-      return;
-    }
-  }
-  if (mVal == 2)
-  {
-    if (M == 1)
-    {
-      digitalWrite(PIN_MOTOR1, LOW);
-      digitalWrite(PIN_MOTOR2, HIGH);
-      mVal = 1;
-      delay(2000);
-      digitalWrite(PIN_MOTOR2, LOW);
-      return;
-    }
-  }
-}
-
 void getLight()
 {
   pVal = 0;
@@ -293,8 +263,6 @@ void getLight()
 void setup() 
 {
   Serial.begin(115200);
-  pinMode(PIN_MOTOR1, OUTPUT);
-  pinMode(PIN_MOTOR2, OUTPUT);  
   WiFiBegin();
   InitDeviceInNetwork();
 }

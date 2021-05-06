@@ -1,3 +1,5 @@
+https://arduinomaster.ru/platy-arduino/esp8266-nodemcu-v3-lua/
+
 https://arduino-esp8266.readthedocs.io/en/latest/installing.html#boards-manager
 
 https://www.raspberrypi.org/documentation/configuration/wireless/access-point-routed.md
