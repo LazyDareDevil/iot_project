@@ -14,6 +14,7 @@ class DecisionBlock:
         self.system_snapshot = snapshot
 
     def analyse(self):
+        self.devices_to_change = []
         outside_count = 0
         for device in self.system_snapshot.devices:
             if device.type == 2:
@@ -21,9 +22,9 @@ class DecisionBlock:
                 outside_count += 1
                 self.windows.append(device.copy())
             if device.type == 1:
-                if device.light <= 20:
+                if device.light <= 40:
                     self.low_normal.append(device.copy())
-                if device.light >= 40:
+                if device.light >= 60:
                     self.high_normal.append(device.copy())
         if outside_count > 0:
             self.outside_light /= outside_count
@@ -39,7 +40,7 @@ class DecisionBlock:
                     device.lighter = [300, 300, 300]
                     self.devices_to_change.append(device)
             for device in self.windows:
-                if device.light > 50:
+                if device.light > 60:
                     if device.motor == 2:
                         device.motor = 1
                         self.devices_to_change.append(device)

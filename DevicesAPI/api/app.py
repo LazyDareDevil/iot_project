@@ -63,7 +63,6 @@ def update_info():
         decision.decision()
     if element is not None:
         resp = {"uid": element.uid, "status": 1, "rpi": system_snapshot.rpi}
-        system_snapshot.save_to_file()
         return jsonify(resp), 201
     else:
         abort(400)
