@@ -22,15 +22,15 @@ class DecisionBlock:
                 outside_count += 1
                 self.windows.append(device.copy())
             if device.type == 1:
-                if device.light <= 40:
+                if device.light <= 50:
                     self.low_normal.append(device.copy())
-                if device.light >= 60:
+                if device.light >= 70:
                     self.high_normal.append(device.copy())
         if outside_count > 0:
             self.outside_light /= outside_count
 
     def decision(self):
-        if self.outside_light > 40:
+        if self.outside_light > 70:
             for device in self.high_normal:
                 if device.lighter[0] > 20 and device.lighter[1] > 20 and device.lighter[2] > 20:
                     device.lighter = [0, 0, 0]
@@ -40,7 +40,7 @@ class DecisionBlock:
                     device.lighter = [300, 300, 300]
                     self.devices_to_change.append(device)
             for device in self.windows:
-                if device.light > 60:
+                if device.light > 80:
                     if device.motor == 2:
                         device.motor = 1
                         self.devices_to_change.append(device)
