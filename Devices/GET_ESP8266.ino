@@ -8,9 +8,12 @@
 #define STAPSK  ""
 
 #define UID ""
-#define PIN_GREEN 4
+// GPIO5 = D1
+#define PIN_GREEN 5
+// GPIO4 = D2
 #define PIN_RED 4
-#define PIN_BLUE 2
+// GPIO14 = D5
+#define PIN_BLUE 14
 #define PIN_PHOTO_SENSOR A0
 
 const int freqAver = 10;

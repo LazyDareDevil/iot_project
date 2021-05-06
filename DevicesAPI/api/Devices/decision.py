@@ -8,6 +8,7 @@ class DecisionBlock:
     outside_light = 0
     high_normal = []
     low_normal = []
+    normal = []
     windows = []
     got_data = []
 
@@ -24,8 +25,10 @@ class DecisionBlock:
             if device.type == 1:
                 if device.light <= 80:
                     self.low_normal.append(device.copy())
-                if device.light >= 110:
+                elif device.light >= 110:
                     self.high_normal.append(device.copy())
+                else:
+                    self.normal.append(device.copy())
         if outside_count > 0:
             self.outside_light /= outside_count
 
@@ -62,6 +65,10 @@ class DecisionBlock:
                 if device.motor == 1:
                     device.motor = 2
                     self.devices_to_change.append(device)
+        for device in self.normal:
+            if device.lighter[0] > 100 and device.lighter[1] > 100 and device.lighter[2] > 100:
+                device.lighter = [0, 0, 0]
+                self.devices_to_change.append(device)
 
     def parse_change(self):
         self.devices_to_change = []
