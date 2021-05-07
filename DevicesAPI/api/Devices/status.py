@@ -44,6 +44,10 @@ class SystemSnapshot:
 
     def to_dict(self):
         res = {"rpi": self.rpi, "devices": []}
+        if self.auto_decision:
+            res["auto"] = 1
+        else:
+            res["auto"] = 2
         for device in self.devices:
             res["devices"].append(device.to_dict_full())
         return res
