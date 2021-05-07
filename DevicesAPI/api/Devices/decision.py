@@ -36,11 +36,12 @@ class DecisionBlock:
         self.devices_to_change = []
         if self.outside_light > 110:
             for device in self.high_normal:
-                if device.lighter[0] > 20 and device.lighter[1] > 20 and device.lighter[2] > 20:
+                if device.lighter[0] > 100 and device.lighter[1] > 100 and device.lighter[2] > 100:
                     device.lighter = [0, 0, 0]
                     self.devices_to_change.append(device)
             for device in self.low_normal:
-                if device.lighter[0] < 200 and device.lighter[1] < 200 and device.lighter[2] < 200:
+                if (device.lighter[0] < 200 and device.lighter[1] < 200 and device.lighter[2] < 200) or \
+                   (device.lighter[0] > 800 and device.lighter[1] > 800 and device.lighter[2] > 800):
                     device.lighter = [300, 300, 300]
                     self.devices_to_change.append(device)
             for device in self.windows:
@@ -54,12 +55,12 @@ class DecisionBlock:
                         self.devices_to_change.append(device)
         else:
             for device in self.high_normal:
-                if device.lighter[0] > 300 and device.lighter[1] > 300 and device.lighter[2] > 300:
-                    device.lighter = [0, 0, 0]
+                if device.lighter[0] > 400 and device.lighter[1] > 400 and device.lighter[2] > 400:
+                    device.lighter = [300, 300, 300]
                     self.devices_to_change.append(device)
             for device in self.low_normal:
-                if device.lighter[0] < 400 and device.lighter[1] < 400 and device.lighter[2] < 400:
-                    device.lighter = [600, 600, 600]
+                if device.lighter[0] < 600 and device.lighter[1] < 600 and device.lighter[2] < 600:
+                    device.lighter = [800, 800, 800]
                     self.devices_to_change.append(device)
             for device in self.windows:
                 if device.motor == 1:
@@ -75,7 +76,7 @@ class DecisionBlock:
         for device in self.system_snapshot.devices:
             for elem in self.got_data:
                 if elem.uid == device.uid:
-                    self.devices_to_change.append()
+                    self.devices_to_change.append(elem)
 
     def add_change(self, data):
         for element in data:

@@ -16,3 +16,4 @@ testing REST request on Win10:
 
 	get
     curl http://host:port/something -H 'Content-Type: application/json'
+
