@@ -20,7 +20,7 @@ class SystemInfo:
             tmp = f.readline()[:-1]
             if tmp[0] == '0' and tmp[2] == '0':
                 rpi_uid = tmp
-        print("RPI:" + rpi_uid)
+        print("RPI: " + rpi_uid)
         xmlTreeRoot = self.xmlTree.getroot()
         self.rpi = xmlTreeRoot.find("RPI")    
         self.rpi.set("uid", rpi_uid)

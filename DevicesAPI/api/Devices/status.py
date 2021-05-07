@@ -47,10 +47,3 @@ class SystemSnapshot:
         for device in self.devices:
             res["devices"].append(device.to_dict_full())
         return res
-
-    def save_to_file(self):
-        cwd = os.getcwd()
-        file_path = os.path.join(os.path.join(os.path.join(cwd, "Devices"), "Sensitive"), "db.txt")
-        file_object = open(file_path, 'a')
-        file_object.write("\n{}\n".format(self.to_dict()))
-        file_object.close()

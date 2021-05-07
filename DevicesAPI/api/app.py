@@ -91,7 +91,7 @@ def update_device():
 def change_automatic():
     if (not request.get_json(force=True)) or (not ('type' in request.json)):
         abort(400)
-    des_type = request.json["type"]
+    des_type = int(request.json["type"])
     # if 1 - automatic, 2 - handle
     if des_type == 1:
         system_snapshot.auto_decision = True
@@ -102,9 +102,9 @@ def change_automatic():
 
 @app.route("/api/v1.0/change/device", methods=['POST'])
 def change_devices():
-    if not request.get_json(force=True):
+    if not request.get_json(force=True) or (not ('devices' in request.json)):
         abort(400)
-    res = decision.add_change(request.json)
+    res = decision.add_change(request.json["devices"])
     if res == 1:
         return jsonify({"apply": 1}), 201
     else:
