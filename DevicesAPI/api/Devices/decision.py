@@ -60,7 +60,7 @@ class DecisionBlock:
                     self.devices_to_change.append(device)
             for device in self.low_normal:
                 if device.lighter[0] < 600 and device.lighter[1] < 600 and device.lighter[2] < 600:
-                    device.lighter = [800, 800, 800]
+                    device.lighter = [700, 700, 700]
                     self.devices_to_change.append(device)
             for device in self.windows:
                 if device.motor == 1:
