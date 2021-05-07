@@ -1,0 +1,314 @@
+﻿<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="/css/jquery-ui.css">
+		<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+		<script src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+		<style>
+		* {
+		  box-sizing: border-box;
+		}
+		.menu {
+		  float: left;
+		  width: 20%;
+		}
+		.menuitem {
+		  padding: 8px;
+		  margin-top: 7px;
+		  border-bottom: 1px solid #f1f1f1;
+		}
+		.main {
+		  float: left;
+		  width: 60%;
+		  padding: 0 20px;
+		  overflow: hidden;
+		}
+		.right {
+		  background-color: lightblue;
+		  float: left;
+		  width: 20%;
+		  padding: 10px 15px;
+		  margin-top: 7px;
+		}
+
+		@media only screen and (max-width:800px) {
+		  /* For tablets: */
+		  .main {
+			width: 80%;
+			padding: 0;
+		  }
+		  .right {
+			width: 100%;
+		  }
+		}
+		@media only screen and (max-width:500px) {
+		  /* For mobile phones: */
+		  .menu, .main, .right {
+			width: 100%;
+		  }
+		}
+		
+		.switch {
+		  position: relative;
+		  display: inline-block;
+		  width: 60px;
+		  height: 34px;
+		}
+		.switch input {
+		  opacity: 0;
+		  width: 0;
+		  height: 0;
+		}
+
+		.slider {
+		  position: absolute;
+		  cursor: pointer;
+		  top: 0;
+		  left: 0;
+		  right: 0;
+		  bottom: 0;
+		  background-color: #ccc;
+		  -webkit-transition: .4s;
+		  transition: .4s;
+		}
+
+		.slider:before {
+		  position: absolute;
+		  content: "";
+		  height: 26px;
+		  width: 26px;
+		  left: 4px;
+		  bottom: 4px;
+		  background-color: white;
+		  -webkit-transition: .4s;
+		  transition: .4s;
+		}
+
+		input:checked + .slider {
+		  background-color: #2196F3;
+		}
+
+		input:focus + .slider {
+		  box-shadow: 0 0 1px #2196F3;
+		}
+
+		input:checked + .slider:before {
+		  -webkit-transform: translateX(26px);
+		  -ms-transform: translateX(26px);
+		  transform: translateX(26px);
+		}
+
+		.slider.round {
+		  border-radius: 34px;
+		}
+
+		.slider.round:before {
+		  border-radius: 50%;
+		}
+		</style>
+		<style>
+		  #custom-handle {
+			width: 3em;
+			height: 1.6em;
+			top: 50%;
+			margin-top: -.8em;
+			text-align: center;
+			line-height: 1.6em;
+		  }
+		  body {
+				font-family: Arial, Helvetica, sans-serif;
+			}
+
+			table {
+				font-size: 1em;
+			}
+
+			.ui-draggable, .ui-droppable {
+				background-position: top;
+			}
+			p.auto {
+				color: #2196F3;
+			}
+			p.manual {
+				color: #969696;
+			}
+		</style>
+		<script>
+		$( function() {
+			var handle = $( "#custom-handle" );
+			$( "#slider" ).slider({
+			  create: function() {
+				handle.text( $( this ).slider( "value" ) );
+			  },
+			  slide: function( event, ui ) {
+				var ledPower = 700 * ui.value / 100;
+				handle.text( ledPower );  
+			  },
+			  stop: function( event, ui ) {
+				var ledPower = 700 * ui.value / 100;
+				$.get( "/ajax/led.php?uid=001f2df6e08-ac27-11eb-8529-0242ac130003&power=" + ledPower);
+			  }
+			});
+		} );
+		</script>
+		<script>
+		window.onload = function () {
+			
+			var dataPoints = [ [], [], [], [] ];
+			var chartNames = ["График уровня освещения",
+			"График яркости лампочки",
+			"График уровня освещения",
+			"График состояния мотора"];
+			var options = [];
+			for (var i = 0; i < 4; i++) {
+				options[i] = {
+					backgroundColor: "#F5DEB3",
+					theme: "light2",
+					title: {
+						text: chartNames[i]
+					},
+					data: [{
+						type: "spline",
+						dataPoints: dataPoints[i]
+					}]
+				};
+				$("#chart" + (i+1)).CanvasJSChart(options[i]);
+			}
+			
+			updateData();
+
+			var xValue = 0;
+			var yValue = 10;
+
+			function addData(x, y, i) {
+				dataPoints[i].push({ x: xValue, y: y });
+				$("#chart" + (i+1)).CanvasJSChart().render();
+			}
+
+			function updateData() {
+				$.getJSON("/ajax/get_state.php", function( data ) {
+					var timestamp1 = data['devices'][0]['timestamp'];
+					var light1 = data['devices'][0]['light'];
+					addData(timestamp1, light1, 0);
+					var lighter = data['devices'][0]['lighter'][0];
+					addData(timestamp1, lighter, 1);
+					
+					var timestamp2 = data['devices'][1]['timestamp'];
+					var light2 = data['devices'][1]['light'];
+					addData(timestamp2, light2, 2);
+					var motor = data['devices'][1]['motor'];
+					addData(timestamp2, motor, 3);
+					
+					xValue++;
+					setTimeout(updateData, 1500);
+				});
+			}
+			$.getJSON("/ajax/get_state.php", function( data ) {
+				document.getElementById("uid1").innerHTML = data['devices'][0]['uid'];
+				document.getElementById("uid2").innerHTML = data['devices'][1]['uid'];
+				var lighter = data['devices'][0]['lighter'][0];
+				var sliderValue = lighter / 700 * 100;
+				$( "#custom-handle" ).text( lighter );  
+				$("#slider").slider('value',sliderValue);
+				var auto = (data['auto']==1);
+				document.getElementById("ch_auto").checked = auto;
+				var auto_text = 'Система работает в автоматическом режиме';
+				var manual_text = 'Система работает в ручном режиме';
+				if (auto) {
+					$( "#slider" ).hide();
+					$( "#slider_header" ).hide();
+					$( "#lbl_motor" ).hide();
+					$( "#motor_header" ).hide();
+					$('#p_auto').text(auto_text);
+					$("#p_auto").removeClass().addClass('auto');
+				} else {
+					$('#p_auto').text(manual_text);
+					$("#p_auto").removeClass().addClass('manual');
+				}
+				
+				$('#ch_auto').change(function() {
+					if (this.checked) {
+						$( "#slider" ).hide();
+						$( "#slider_header" ).hide();
+						$( "#lbl_motor" ).hide();
+						$( "#motor_header" ).hide();
+						$('#p_auto').text(auto_text);
+						$("#p_auto").removeClass().addClass('auto');
+					} else {
+						$( "#slider" ).show();
+						$( "#slider_header" ).show();
+						$( "#lbl_motor" ).show();
+						$( "#motor_header" ).show();
+						$('#p_auto').text(manual_text);
+						$("#p_auto").removeClass().addClass('manual');
+					}
+					$.get( "/ajax/set_mode.php?mode=" + (this.checked ? 1 : 2));
+				});
+				
+				$('#ch_motor').change(function() {
+					$.get( "/ajax/motor.php?uid=0027b23a314-ae6d-11eb-8529-0242ac130003&mode=" + (this.checked ? 1 : 2));    
+				});
+			});
+		}
+		</script>
+	</head>
+	<body style="font-family:Verdana;">
+
+	<div style="background-color:#f1f1f1;padding:15px;">
+	  <h1>SmartLight IoT</h1>
+	  <h3>Автоматическое освещение в помещении</h3>
+	</div>
+
+	<div style="overflow:auto">
+	  <div class="menu">
+		<div class="menuitem">Офис</div>
+		<div class="menuitem">Дом. Комната</div>
+		<div class="menuitem">Дом. Кухня</div>
+		<div class="menuitem">Общежитие</div>
+	  </div>
+
+	  <div class="main">
+		<h2>Офис</h2>
+		<h4>Автоматическое управление:</h4>
+		<label class="switch">
+		  <input id="ch_auto" type="checkbox">
+		  <span class="slider"></span>
+		</label>
+		<p id="p_auto"></p>
+		<h4>Устройство №1: <span id="uid1"></span></h4>
+		<div id="chart1" style="height: 370px; width: 100%;"></div>
+		<div id="chart2" style="height: 370px; width: 100%;"></div>
+		<h5 id="slider_header">Ручное управление освещением</h5>
+		<div id="slider">
+		  <div id="custom-handle" class="ui-slider-handle"></div>
+		</div>
+		<h4>Устройство №2: <span id="uid2"></span></h4>
+		<div id="chart3" style="height: 370px; width: 100%;"></div>
+		<div id="chart4" style="height: 370px; width: 100%;"></div>
+		<h5 id="motor_header">Ручное управление мотором</h5>
+		<label id="lbl_motor" class="switch">
+		  <input id="ch_motor" type="checkbox">
+		  <span class="slider"></span>
+		</label>
+	  </div>
+
+	  <div class="right">
+		<h2>Идея</h2>
+		<p>Автоматизация повседневного рутинного действия — управления светом в помещении</p>
+		<h2>Как работает система?</h2>
+		<p>Устройства при помощи датчиков считывают освещение, а устройство-хост управляет состоянием системы.</p>
+		<h2>Расширяемость и дальнейшее развитие</h2>
+		<ol>
+			<li>переход на другой интерфейс общения устройств</li>
+			<li>проектировка и добавление устройства — умной гардины.</li>
+		</ol>
+	  </div>
+	</div>
+
+
+	<div style="background-color:#f1f1f1;text-align:center;padding:10px;margin-top:7px;font-size:12px;"> <small>&copy; Copyright 2021, Ирина Николаева</small></div>
+	</body>
+</html>
